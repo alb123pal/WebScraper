@@ -4,13 +4,9 @@ Web scraper in node.js
 ## Development
 Run `npm install` for install all dependencies.
 
-Run `ng build` for build production project.
-
 Run `node server.js` to get data from booking and saved in data.json.
 
-## Development server
-
-Run `ng serve -o` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+Run `ng serve - o` for dev server.
 
 ## Code scaffolding
 
