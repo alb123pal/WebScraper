@@ -8,6 +8,9 @@ export class HotelService {
     }
 
     getHotels(): Observable<any> {
-        return this.httpClient.get<any>('http://localhost:3000/api/hotels');
+        return this.httpClient.get<any>('http://localhost:3000/api/etl-process');
+    }
+    extractHotels(): Observable<any> {
+        return this.httpClient.get<any>('http://localhost:3000/api/extract-data');
     }
 }

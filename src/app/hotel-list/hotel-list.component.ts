@@ -21,4 +21,12 @@ export class HotelListComponent implements OnInit {
             (error: any) => console.log(error)
         );
     }
+    downloadData() {
+        this._hotelService.extractHotels().subscribe(
+            (data) => {
+                console.log('Dane zostały pobrane, liczba znaków do przetworzenia: ', data.dataLength);
+            },
+            (error: any) => console.log(error)
+        );
+    }
 }
