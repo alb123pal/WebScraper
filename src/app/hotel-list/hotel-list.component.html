@@ -1,10 +1,20 @@
 <div>
   <button (click)="getHotels()">ETL</button>
-  <button (click)="downloadData()">E</button>
-  <button (click)="getHotels()">T</button>
-  <button (click)="getHotels()">L</button>
+  <button (click)="extractData()">E</button>
+  <button (click)="transformData()">T</button>
+  <button (click)="loadData()">L</button>
   <button (click)="getHotels()">Export to csv </button>
   <div>
     Przedstawienie wszystkich danych, które znajdują sie w bazie. Powinna zawierać wszystkie dane oraz liczbę.
+  <br />  Zablokowac po froncie mmozliwosc wykonania T, gdy nie wykonalo sie E, Tak samo z L - gdy nie wykonalo E i T oraz eksportem do CSV gdy baza jest pusta
+  <br />  Pokazać loader gdy jest wysłany request do backendu - do momentu gdy nie zostana odebrane dane
+  <br />  Wyswietlic komunikat, ze request/y zostały zakonczone pomyslnie
+  <br />  Nowe dane zaktualizowac w tabelce
+  <br />  Dodac input z ilu podstron załadować dane - obsłużyć tez po backendzie ( backend ja moge zrobic)
+  <br />  Filtrowanie danych znajdujących się na froncie (stworzyc serwis implementujacy PipeTransform czy jakos tak)
+  <br />  Nie wiem co z tym obrazkiem, narazie nie pobieramy
+  <br />  Trzeba bedzie dodac jeszcze przycisk aktualizacji danych
+  <br />  Dorobić pobieranie dla wielu hoteli - narazie jest tylko dla 15 z pierwszej strony
+  <br />  Mozna dodac input ktory bedzie przyjmowal link z booking i stamtad pobierał dane
   </div>
 </div>
