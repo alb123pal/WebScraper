@@ -1,20 +1,53 @@
-<div>
-  <button (click)="getHotels()">ETL</button>
-  <button (click)="extractData()">E</button>
-  <button (click)="transformData()">T</button>
-  <button (click)="loadData()">L</button>
-  <button (click)="getHotels()">Export to csv </button>
+<section class="wrapper-content">
+  <h1>ETL Process</h1>
+  <p>Data comes from booking</p>
+</section>
+<section class="wrapper-subpages">
+  <span class="wrapper-subpages-label">Type integer from how many subpages download data</span>
+  <input class="input-subpages" placeholder="type number" (input)="setNumberSubpages($event)"/>
+  <hr />
+</section>
+<section class="wrapper-buttons">
   <div>
-    Przedstawienie wszystkich danych, które znajdują sie w bazie. Powinna zawierać wszystkie dane oraz liczbę.
-  <br />  Zablokowac po froncie mmozliwosc wykonania T, gdy nie wykonalo sie E, Tak samo z L - gdy nie wykonalo E i T oraz eksportem do CSV gdy baza jest pusta
-  <br />  Pokazać loader gdy jest wysłany request do backendu - do momentu gdy nie zostana odebrane dane
-  <br />  Wyswietlic komunikat, ze request/y zostały zakonczone pomyslnie
-  <br />  Nowe dane zaktualizowac w tabelce
-  <br />  Dodac input z ilu podstron załadować dane - obsłużyć tez po backendzie ( backend ja moge zrobic)
-  <br />  Filtrowanie danych znajdujących się na froncie (stworzyc serwis implementujacy PipeTransform czy jakos tak)
-  <br />  Nie wiem co z tym obrazkiem, narazie nie pobieramy
-  <br />  Trzeba bedzie dodac jeszcze przycisk aktualizacji danych
-  <br />  Dorobić pobieranie dla wielu hoteli - narazie jest tylko dla 15 z pierwszej strony
-  <br />  Mozna dodac input ktory bedzie przyjmowal link z booking i stamtad pobierał dane
+  <button class="button button-etl" (click)="etlProcess()">ETL</button>
   </div>
+  <div class="panel-etl">
+    <button class="button" (click)="extractData()">E</button>
+    <button class="button" (click)="transformData()" [disabled]="!isExtractProcessInvoked">T</button>
+    <button class="button" (click)="loadData()" [disabled]="!isExtractProcessInvoked || !isTransformProcessInvoked">L</button>
+  </div>
+  <div class="panel-buttons-database">
+    <button class="button" (click)="exportToCsv()">Export to csv </button>
+    <button class="button" (click)="clearDatabase()">Clear database </button>
+  </div>
+  <span class="database-info">Amount of elements in Database: <span class="database-info-length">{{hotels.length}}</span></span>
+</section>
+<section class="wrapper-data">
+  <table class="responstable">
+    <tr>
+      <th class="id">Number</th>
+      <th class="name">Name</th>
+      <th class="rating">Rating</th>
+      <th class="location">Location</th>
+      <th class="description">Description</th>
+    </tr>
+
+    <tr *ngFor="let hotel of hotels; let i = index">
+      <td>{{i+1}}</td>
+      <td>{{hotel.name}}</td>
+      <td>{{hotel.rating}}</td>
+      <td>{{hotel.location}}</td>
+      <td>{{hotel.description}}</td>
+    </tr>
+  </table>
+</section>
+<section *ngIf="isLoading" class="request-loader">
+  <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+</section>
+<div>
+  <br />  Wyswietlic komunikat, ze request/y zostały zakonczone pomyslnie
+  <br />  Nie dziala subpage dla procesu T
+  <br />  Filtrowanie danych znajdujących się na froncie (stworzyc serwis implementujacy PipeTransform czy jakos tak)
+  <br />  Mozna dodac input ktory bedzie przyjmowal link z booking i stamtad pobierał dane
+  <br />  Przycisk ekspotu hotelu do txt
 </div>

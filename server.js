@@ -1,20 +1,29 @@
 const request = require("request");
 const cheerio = require("cheerio");
 const fs = require("fs");
+const csv = require("fast-csv");
 const express = require("express");
 const bodyParser = require("body-parser");
 const path = require("path");
 const http = require("http");
 const app = express();
-const data = require('./data');
+let data = require('./data');
 
-let dataFromExtractProcess, dataFromTransportProcess;
-const defaultUrl = "https://www.booking.com/searchresults.pl.html?label=gen173nr-1DCAEoggI46AdIHlgEaLYBiAEBmAEeuAEXyAEM2AED6AEB-AECiAIBqAID&sid=2830d28dc51fda3e2775f9267a182620&sb=1&src=index&src_elem=sb&error_url=https%3A%2F%2Fwww.booking.com%2Findex.pl.html%3Flabel%3Dgen173nr-1DCAEoggI46AdIHlgEaLYBiAEBmAEeuAEXyAEM2AED6AEB-AECiAIBqAID%3Bsid%3D2830d28dc51fda3e2775f9267a182620%3Bsb_price_type%3Dtotal%26%3B&ss=Turyn%2C+Piemont%2C+W%C5%82ochy&is_ski_area=&checkin_monthday=&checkin_month=&checkin_year=&checkout_monthday=&checkout_month=&checkout_year=&no_rooms=1&group_adults=2&group_children=0&b_h4u_keep_filters=&from_sf=1&ss_raw=turyn&ac_position=0&ac_langcode=pl&ac_click_type=b&dest_id=-130938&dest_type=city&iata=TRN&place_id_lat=45.070202&place_id_lon=7.68549&search_pageview_id=63e557da1ed500bb&search_selected=true&search_pageview_id=63e557da1ed500bb&ac_suggestion_list_length=5&ac_suggestion_theme_list_length=0";
+let dataFromExtractProcess = [], dataFromTransportProcess, newDataFromLoadProcess = [], offset = 15;
+let defaultUrl = "https://www.booking.com/searchresults.pl.html?label=gen173nr-1DCAEoggI46AdIHlgEaLYBiAEBmAEeuAEXyAEM2AED6AEB-AECiAIBqAID&sid=2830d28dc51fda3e2775f9267a182620&sb=1&src=index&src_elem=sb&error_url=https%3A%2F%2Fwww.booking.com%2Findex.pl.html%3Flabel%3Dgen173nr-1DCAEoggI46AdIHlgEaLYBiAEBmAEeuAEXyAEM2AED6AEB-AECiAIBqAID%3Bsid%3D2830d28dc51fda3e2775f9267a182620%3Bsb_price_type%3Dtotal%26%3B&ss=Turyn%2C+Piemont%2C+W%C5%82ochy&is_ski_area=&checkin_monthday=&checkin_month=&checkin_year=&checkout_monthday=&checkout_month=&checkout_year=&no_rooms=1&group_adults=2&group_children=0&b_h4u_keep_filters=&from_sf=1&ss_raw=turyn&ac_position=0&ac_langcode=pl&ac_click_type=b&dest_id=-130938&dest_type=city&iata=TRN&place_id_lat=45.070202&place_id_lon=7.68549&search_pageview_id=63e557da1ed500bb&search_selected=true&search_pageview_id=63e557da1ed500bb&ac_suggestion_list_length=5&ac_suggestion_theme_list_length=0";
+const ws = fs.createWriteStream('data.csv');
 
 app.get('/api/etl-process', (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.header("Content-Type",'application/json');
-    etlProcess(res);
+    etlProcess(res, req.query.subpages);
+});
+
+
+app.get('/api/get-hotels', (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.header("Content-Type",'application/json');
+    res.json(data);
 });
 
 app.get('/api/extract-data', (req, res) => {
@@ -32,6 +41,16 @@ app.get('/api/load-data', (req, res) => {
     loadProcess(res);
 });
 
+app.get('/api/export-data-to-csv', (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    exportToCSV(res);
+});
+
+app.get('/api/clear-database', (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    clearDatabase(res);
+});
+
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'dist/WebScraper/index.html'));
 });
@@ -43,14 +62,15 @@ app.use(express.static(path.join(__dirname, 'dist/WebScraper')));
 
 function extractProcess(responseToClient) {
     let extractedData, extractedDataString;
+    defaultUrl = `https://www.booking.com/searchresults.pl.html?aid=304142&label=gen173nr-1DCAEoggI46AdIHlgEaLYBiAEBmAEeuAEXyAEM2AED6AEB-AECiAIBqAID&sid=2830d28dc51fda3e2775f9267a182620&ac_click_type=b&ac_position=0&class_interval=1&dest_id=-130938&dest_type=city&from_sf=1&group_adults=2&group_children=0&iata=TRN&label_click=undef&no_rooms=1&raw_dest_type=city&room1=A%2CA&sb_price_type=total&search_selected=1&shw_aparth=1&slp_r_match=0&src=index&src_elem=sb&srpvid=82ef8111fd0306c2&ss=Turyn%2C%20Piemont%2C%20W%C5%82ochy&ss_raw=turyn&ssb=empty&rows=15&offset=${offset}`;
 
-    extractedData = request(defaultUrl, (err, res, html) => {
+    request(defaultUrl, (err, res, html) => {
         if (!err) {
             const $ = cheerio.load(html);
             extractedData = $('#hotellist_inner').children();
             extractedDataString = extractedData.toString();
-            responseToClient.json( {'dataLength': extractedDataString.length} );
             dataFromExtractProcess = extractedData;
+            responseToClient.json( {'dataLength': extractedDataString.length} );
             responseToClient.end();
         }
     });
@@ -79,67 +99,80 @@ function transformProcess(responseToClient) {
 }
 
 function loadProcess(responseToClient) {
-    let newHotel = [];
-    console.log(data.length);
-    // console.log(data[index].name);
-    dataFromTransportProcess.find(obj => {
+    let newHotelResponseForClient = [],
+        found;
+    for (let i = 0; i < dataFromTransportProcess.length; i++) {
+        let newDataFromLoadProcessJSON = {};
 
-        for (let index = 0; index < data.length; index++) {
-
-            // console.log(obj.name);
-            if (data[index].name !== obj.name) {
-                newHotel.push(obj);
+        found = false;
+        for (let j = 0; j < data.length; j++) {
+            if (dataFromTransportProcess[i].name === data[j].name) {
+                found = true;
+                break;
             }
-            // console.log(dataFromTransportProcess[index].name);
-            // console.log(obj.name !== dataFromTransportProcess[index].name);
-            // console.log(obj.name, dataFromTransportProcess[index].name);
-            // return obj.name !== data[index].name;
-            // let isUpdatedName = obj.name !== dataFromTransportProcess[index].name;
-            // let isUpdatedRating = obj.rating[i] === dataFromTransportProcess[0].rating;
-            // let isUpdatedDescription = obj.description[i] === dataFromTransportProcess[0].description;
-            // let isUpdatedLocation = obj.location[i] === dataFromTransportProcess[0].location;
         }
-
+        if (found === false) {
+            newDataFromLoadProcessJSON = {
+                name: dataFromTransportProcess[i].name,
+                rating: dataFromTransportProcess[i].rating,
+                description: dataFromTransportProcess[i].description,
+                location: dataFromTransportProcess[i].location
+            };
+            let preparedJSON = prepareJSONtoSave(newDataFromLoadProcessJSON);
+            data.push(preparedJSON);
+            newHotelResponseForClient.push(preparedJSON);
+        }
+    }
+    responseToClient.json({'newHotels': newHotelResponseForClient, 'allHotel': data});
+    fs.writeFile("C:/Win10-pliki/Programowanie/ds-aktualne-prace/WebScraper/data.json", JSON.stringify(data), function (err) {
+        if (err) {
+            return console.log(err);
+        }
+        console.log("The file was saved!");
     });
-    console.log(newHotel);
-    // if (newData) {
-    //     newHotel.push(newData);
-    // data.push(newData);
-    // }
-    // let isUpdatedData = data.find(obj => {
-    //     return obj.name === dataFromTransportProcess[0].name;
-    // });
-    // console.log(isUpdatedData);
-    // dataFromTransportProcess.each(function (index) {
-    //     let
-    //     console.log(transformedData[index].name === data[index].name);
-    //     console.log(transformedData[index].rating === data[index].rating);
-    //     console.log(transformedData[index].description === data[index].description);
-    //     console.log(transformedData[index].location === data[index].location);
-    // });
-    // let test = [];
-    // test.push(transformedData[1]);
-    // test.push(data[1]);
-
-    // console.log(transformedData[1], data[1]);
-    // console.log(transformedData[1].name == data[1].name);
-    responseToClient.json(newHotel);
+    newDataFromLoadProcess = [];
+    dataFromTransportProcess = [];
+    dataFromExtractProcess = '';
 }
 
-function etlProcess(responseToClient) {
+function exportToCSV(responseToClient) {
+    let jsonToSaved = prepareJSONtoSave();
+    csv.write(jsonToSaved, {headers: true})
+        .pipe(ws);
+    responseToClient.json(true);
+}
+
+function prepareJSONtoSave(jsonToPrepare = data) {
+    let stringifyJSON = JSON.stringify(jsonToPrepare);
+    let preparedJSON = stringifyJSON.replace(/ś/gi, 's');
+    preparedJSON = preparedJSON.replace(/ę/gi, 'e');
+    preparedJSON = preparedJSON.replace(/ą/gi, 'a');
+    preparedJSON = preparedJSON.replace(/ć/gi, 'c');
+    preparedJSON = preparedJSON.replace(/ż/gi, 'z');
+    preparedJSON = preparedJSON.replace(/ż/gi, 'z');
+    preparedJSON = preparedJSON.replace(/ń/gi, 'n');
+    preparedJSON = preparedJSON.replace(/ó/gi, 'o');
+    preparedJSON = preparedJSON.replace(/ł/gi, 'l');
+    preparedJSON = preparedJSON.replace(/\\n/g, "");
+    preparedJSON = preparedJSON.replace(/Pokaz na mapie/g, "");
+    preparedJSON = preparedJSON.replace(/Pokaz ceny/g, "");
+    return JSON.parse(preparedJSON);
+}
+
+function etlProcess(responseToClient, subpages = 1) {
+    defaultUrl = `https://www.booking.com/searchresults.pl.html?aid=304142&label=gen173nr-1DCAEoggI46AdIHlgEaLYBiAEBmAEeuAEXyAEM2AED6AEB-AECiAIBqAID&sid=2830d28dc51fda3e2775f9267a182620&ac_click_type=b&ac_position=0&class_interval=1&dest_id=-130938&dest_type=city&from_sf=1&group_adults=2&group_children=0&iata=TRN&label_click=undef&no_rooms=1&raw_dest_type=city&room1=A%2CA&sb_price_type=total&search_selected=1&shw_aparth=1&slp_r_match=0&src=index&src_elem=sb&srpvid=82ef8111fd0306c2&ss=Turyn%2C%20Piemont%2C%20W%C5%82ochy&ss_raw=turyn&ssb=empty&rows=15&offset=${offset}`;
     request(defaultUrl, (err, res, html) => {
         if (!err) {
             const $ = cheerio.load(html);
-            const allHotels = $('#hotellist_inner').children(); // Hotels on first page
-            console.log(allHotels);
-            let hotels = [];
+            const allHotels = $('#hotellist_inner').children();
+            let hotels = []
+            console.log(allHotels.length);
             allHotels.each(function (index) {
                 let hotelData = {};
                 let hotelName = allHotels.eq(index).find('.sr-hotel__name').text().trim();
                 let hotelRating = allHotels.eq(index).find('.bui-review-score__badge').text().trim();
                 let hotelDescription = allHotels.eq(index).find('.hotel_desc').text().trim();
                 let hotelLocation = allHotels.eq(index).find('.jq_tooltip').text().trim();
-                // console.log(hotelName);
                 if (hotelName) {
                     hotelData = {
                         'name': hotelName,
@@ -152,16 +185,62 @@ function etlProcess(responseToClient) {
                 }
             });
 
-            fs.writeFile("C:/Win10-pliki/Programowanie/ds-aktualne-prace/WebScraper/data.json", JSON.stringify(hotels), function (err) {
-                if (err) {
-                    return console.log(err);
-                }
+            let found;
+            for (let i = 0; i < hotels.length; i++) {
+                let newData = {};
 
-                console.log("The file was saved!");
-            });
-            responseToClient.json(data);
+                found = false;
+                for (let j = 0; j < data.length; j++) {
+                    if (hotels[i].name === data[j].name) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (found === false) {
+                    newData = {
+                        name: hotels[i].name,
+                        rating: hotels[i].rating,
+                        description: hotels[i].description,
+                        location: hotels[i].location
+                    };
+                    let preparedJSON = prepareJSONtoSave(newData);
+                    data.push(preparedJSON);
+                }
+            }
+
+            if (subpages === 1) {
+                sendDataToClient(responseToClient);
+            } else {
+                console.log('again request to backend');
+                offset += 15;
+                etlProcess(responseToClient, subpages - 1);
+            }
+
         }
     });
+}
+
+function sendDataToClient(responseToClient) {
+    fs.writeFile("C:/Win10-pliki/Programowanie/ds-aktualne-prace/WebScraper/data.json", JSON.stringify(data), function (err) {
+        if (err) {
+            return console.log(err);
+        }
+
+        console.log("The file was saved!");
+    });
+    responseToClient.json(data);
+}
+
+function clearDatabase(responseToClient) {
+    data = [];
+    fs.writeFile("C:/Win10-pliki/Programowanie/ds-aktualne-prace/WebScraper/data.json", JSON.stringify(data), function (err) {
+        if (err) {
+            return console.log(err);
+        }
+
+        console.log("The database has been cleared");
+    });
+    responseToClient.json(data);
 }
 
 const port = process.env.PORT || '3000';
