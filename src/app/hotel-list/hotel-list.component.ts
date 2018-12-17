@@ -53,6 +53,16 @@ export class HotelListComponent implements OnInit {
             (error: any) => console.log(error)
         );
     }
+    exportToText(id) {
+        this.isLoading = true;
+        this._hotelService.exportToTxt(id).subscribe(
+            () => {
+                this.isLoading = false;
+                console.log('Hotel exported to JSON');
+            },
+            (error: any) => console.log(error)
+        );
+    }
     extractData() {
         this.isLoading = true;
         this._hotelService.extractHotels(this.subpages).subscribe(
@@ -79,7 +89,7 @@ export class HotelListComponent implements OnInit {
         this.isLoading = true;
         this._hotelService.loadHotels().subscribe(
             (data) => {
-                this.isLoading = true;
+                this.isLoading = false;
                 this.isTransformProcessInvoked = false;
                 this.isExtractProcessInvoked = false;
                 this.hotels = data.allHotels;
@@ -92,7 +102,7 @@ export class HotelListComponent implements OnInit {
         this.isLoading = true;
         this._hotelService.exportToCsv().subscribe(
             (data) => {
-                this.isLoading = true;
+                this.isLoading = false;
                 console.log('Załadowane dane: ', data);
             },
             (error: any) => console.log(error)
@@ -102,7 +112,7 @@ export class HotelListComponent implements OnInit {
         this.isLoading = true;
         this._hotelService.clearDatabase().subscribe(
             (data) => {
-                this.isLoading = true;
+                this.isLoading = false;
                 console.log('Załadowane dane: ', data);
             },
             (error: any) => console.log(error)

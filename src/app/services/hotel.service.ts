@@ -14,6 +14,10 @@ export class HotelService {
         const params = {'subpages': +subpages};
         return this.httpClient.get('http://localhost:3000/api/etl-process', {params: params});
     }
+    exportToTxt(id): Observable<any> {
+        const params = {'subpages': +id};
+        return this.httpClient.get<any>('http://localhost:3000/api/export-hotel-to-text',  {params: params});
+    }
     extractHotels(subpages): Observable<any> {
         const params = {'subpages': +subpages};
         return this.httpClient.get<any>('http://localhost:3000/api/extract-data',  {params: params});

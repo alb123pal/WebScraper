@@ -51,6 +51,11 @@ app.get('/api/clear-database', (req, res) => {
     clearDatabase(res);
 });
 
+app.get('/api/export-hotel-to-text', (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    exportHotelToText(res, req.query.subpages);
+});
+
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'dist/WebScraper/index.html'));
 });
@@ -84,18 +89,30 @@ function transformProcess(responseToClient) {
         let hotelRating = dataFromExtractProcess.eq(index).find('.bui-review-score__badge').text().trim();
         let hotelDescription = dataFromExtractProcess.eq(index).find('.hotel_desc').text().trim();
         let hotelLocation = dataFromExtractProcess.eq(index).find('.jq_tooltip').text().trim();
+        let hotelImage = dataFromExtractProcess.eq(index).find('.hotel_image').attr('src');
         if (hotelName) {
             hotelData = {
                 'name': hotelName,
                 'rating': hotelRating,
                 'description': hotelDescription,
-                'location': hotelLocation
+                'location': hotelLocation,
+                'imageUrl': hotelImage
             };
             transformedData.push(hotelData);
         }
     });
     dataFromTransportProcess = transformedData;
     responseToClient.json(transformedData);
+}
+
+function exportHotelToText(responseToClient, id) {
+    fs.writeFile("C:/Win10-pliki/Programowanie/ds-aktualne-prace/WebScraper/data.txt", JSON.stringify(data[1]), function (err) {
+        if (err) {
+            return console.log(err);
+        }
+        console.log("The file was saved!");
+        responseToClient.json(true);
+    });
 }
 
 function loadProcess(responseToClient) {
@@ -116,7 +133,8 @@ function loadProcess(responseToClient) {
                 name: dataFromTransportProcess[i].name,
                 rating: dataFromTransportProcess[i].rating,
                 description: dataFromTransportProcess[i].description,
-                location: dataFromTransportProcess[i].location
+                location: dataFromTransportProcess[i].location,
+                imageUrl: dataFromExtractProcess[i].imageUrl
             };
             let preparedJSON = prepareJSONtoSave(newDataFromLoadProcessJSON);
             data.push(preparedJSON);
@@ -165,20 +183,21 @@ function etlProcess(responseToClient, subpages = 1) {
         if (!err) {
             const $ = cheerio.load(html);
             const allHotels = $('#hotellist_inner').children();
-            let hotels = []
-            console.log(allHotels.length);
+            let hotels = [];
             allHotels.each(function (index) {
                 let hotelData = {};
                 let hotelName = allHotels.eq(index).find('.sr-hotel__name').text().trim();
                 let hotelRating = allHotels.eq(index).find('.bui-review-score__badge').text().trim();
                 let hotelDescription = allHotels.eq(index).find('.hotel_desc').text().trim();
                 let hotelLocation = allHotels.eq(index).find('.jq_tooltip').text().trim();
+                let hotelImage = allHotels.eq(index).find('.hotel_image').attr('src');
                 if (hotelName) {
                     hotelData = {
                         'name': hotelName,
                         'rating': hotelRating,
                         'description': hotelDescription,
-                        'location': hotelLocation
+                        'location': hotelLocation,
+                        'imageUrl': hotelImage
                     };
 
                     hotels.push(hotelData);
@@ -201,19 +220,19 @@ function etlProcess(responseToClient, subpages = 1) {
                         name: hotels[i].name,
                         rating: hotels[i].rating,
                         description: hotels[i].description,
-                        location: hotels[i].location
+                        location: hotels[i].location,
+                        imageUrl: hotels[i].imageUrl
                     };
                     let preparedJSON = prepareJSONtoSave(newData);
                     data.push(preparedJSON);
                 }
             }
 
-            if (subpages === 1) {
+            if (subpages == 1) {
                 sendDataToClient(responseToClient);
             } else {
-                console.log('again request to backend');
                 offset += 15;
-                etlProcess(responseToClient, subpages - 1);
+                etlProcess(responseToClient, parseInt(subpages - 1));
             }
 
         }
