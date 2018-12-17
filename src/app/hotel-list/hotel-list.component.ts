@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import { HotelService } from '../services/hotel.service';
+import { HotelFilterPipe } from '../hotel-list/hotel-filter.pipe';
+
 
 @Component({
   selector: 'app-hotel-list',
@@ -14,12 +16,18 @@ export class HotelListComponent implements OnInit {
   isExtractProcessInvoked = false;
   isTransformProcessInvoked = false;
   isLoading = false;
+  requestInfo = '';
+  isHiddenFilterOptions = false;
+  searchHotel: string;
 
   ngOnInit() {
       this.getHotels();
       document.body.style.margin = '0';
   }
 
+    showHideFilterOptions() {
+        this.isHiddenFilterOptions = !this.isHiddenFilterOptions;
+    }
     setNumberSubpages(event) {
       this.subpages = event.target.value;
     }
