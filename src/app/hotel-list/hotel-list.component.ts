@@ -43,8 +43,7 @@ export class HotelListComponent implements OnInit {
                 console.log(data);
             },
             (error: any) => this.displayNotification('Wystąpił błąd podczas połączenia z serwerem', true)
-
-    );
+        );
     }
     etlProcess() {
         this.isLoading = true;
@@ -98,7 +97,7 @@ export class HotelListComponent implements OnInit {
         this.isLoading = true;
         this._hotelService.loadHotels().subscribe(
             (data) => {
-                this.displayNotification('Dane zostały załadowane pomyślnie');
+                this.displayNotification(`Dane zostały załadowane pomyślnie. Liczba nowych hoteli: ${data.newHotels.length}`);
                 this.isLoading = false;
                 this.isTransformProcessInvoked = false;
                 this.isExtractProcessInvoked = false;
@@ -134,6 +133,7 @@ export class HotelListComponent implements OnInit {
       this.isDisplayNotification = true;
       this.isError = isError;
       this.captionInfo = info;
+      this.isLoading = false;
       setTimeout( () => {
           this.isDisplayNotification = false;
           this.captionInfo = '';

@@ -9,8 +9,9 @@ const http = require("http");
 const app = express();
 let data = require('./data');
 
-let dataFromExtractProcess = [], dataFromTransportProcess, newDataFromLoadProcess = [], offset = 15;
-let defaultUrl = "https://www.booking.com/searchresults.pl.html?label=gen173nr-1DCAEoggI46AdIHlgEaLYBiAEBmAEeuAEXyAEM2AED6AEB-AECiAIBqAID&sid=2830d28dc51fda3e2775f9267a182620&sb=1&src=index&src_elem=sb&error_url=https%3A%2F%2Fwww.booking.com%2Findex.pl.html%3Flabel%3Dgen173nr-1DCAEoggI46AdIHlgEaLYBiAEBmAEeuAEXyAEM2AED6AEB-AECiAIBqAID%3Bsid%3D2830d28dc51fda3e2775f9267a182620%3Bsb_price_type%3Dtotal%26%3B&ss=Turyn%2C+Piemont%2C+W%C5%82ochy&is_ski_area=&checkin_monthday=&checkin_month=&checkin_year=&checkout_monthday=&checkout_month=&checkout_year=&no_rooms=1&group_adults=2&group_children=0&b_h4u_keep_filters=&from_sf=1&ss_raw=turyn&ac_position=0&ac_langcode=pl&ac_click_type=b&dest_id=-130938&dest_type=city&iata=TRN&place_id_lat=45.070202&place_id_lon=7.68549&search_pageview_id=63e557da1ed500bb&search_selected=true&search_pageview_id=63e557da1ed500bb&ac_suggestion_list_length=5&ac_suggestion_theme_list_length=0";
+let dataFromExtractProcess = [], dataFromTransportProcess = [], newDataFromLoadProcess = [], offset = 15;
+let defaultUrl = '';
+let extractedData = [], extractedDataString = '';
 const ws = fs.createWriteStream('data.csv');
 
 app.get('/api/etl-process', (req, res) => {
@@ -28,7 +29,7 @@ app.get('/api/get-hotels', (req, res) => {
 
 app.get('/api/extract-data', (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
-    extractProcess(res);
+    extractProcess(res, req.query.subpages);
 });
 
 app.get('/api/transform-data', (req, res) => {
@@ -65,8 +66,7 @@ app.use(bodyParser.urlencoded({ extended: false}));
 
 app.use(express.static(path.join(__dirname, 'dist/WebScraper')));
 
-function extractProcess(responseToClient) {
-    let extractedData, extractedDataString;
+function extractProcess(responseToClient, subpages = 1) {
     defaultUrl = `https://www.booking.com/searchresults.pl.html?aid=304142&label=gen173nr-1DCAEoggI46AdIHlgEaLYBiAEBmAEeuAEXyAEM2AED6AEB-AECiAIBqAID&sid=2830d28dc51fda3e2775f9267a182620&ac_click_type=b&ac_position=0&class_interval=1&dest_id=-130938&dest_type=city&from_sf=1&group_adults=2&group_children=0&iata=TRN&label_click=undef&no_rooms=1&raw_dest_type=city&room1=A%2CA&sb_price_type=total&search_selected=1&shw_aparth=1&slp_r_match=0&src=index&src_elem=sb&srpvid=82ef8111fd0306c2&ss=Turyn%2C%20Piemont%2C%20W%C5%82ochy&ss_raw=turyn&ssb=empty&rows=15&offset=${offset}`;
 
     request(defaultUrl, (err, res, html) => {
@@ -74,33 +74,41 @@ function extractProcess(responseToClient) {
             const $ = cheerio.load(html);
             extractedData = $('#hotellist_inner').children();
             extractedDataString = extractedData.toString();
-            dataFromExtractProcess = extractedData;
-            responseToClient.json( {'dataLength': extractedDataString.length} );
-            responseToClient.end();
+            dataFromExtractProcess.push(extractedData);
+            if (subpages == 1) {
+                responseToClient.json( {'dataLength': extractedDataString.length} );
+                responseToClient.end();
+            } else {
+                offset += 15;
+                extractProcess(responseToClient, parseInt(subpages - 1));
+            }
         }
     });
 }
 
 function transformProcess(responseToClient) {
     let transformedData = [];
-    dataFromExtractProcess.each( (index) => {
-        let hotelData = {};
-        let hotelName = dataFromExtractProcess.eq(index).find('.sr-hotel__name').text().trim();
-        let hotelRating = dataFromExtractProcess.eq(index).find('.bui-review-score__badge').text().trim();
-        let hotelDescription = dataFromExtractProcess.eq(index).find('.hotel_desc').text().trim();
-        let hotelLocation = dataFromExtractProcess.eq(index).find('.jq_tooltip').text().trim();
-        let hotelImage = dataFromExtractProcess.eq(index).find('.hotel_image').attr('src');
-        if (hotelName) {
-            hotelData = {
-                'name': hotelName,
-                'rating': hotelRating ? hotelRating: '-',
-                'description': hotelDescription,
-                'location': hotelLocation,
-                'imageUrl': hotelImage
-            };
-            transformedData.push(hotelData);
-        }
-    });
+    for(let i = 0; i < dataFromExtractProcess.length; i++) {
+        dataFromExtractProcess[i].each( (index) => {
+            let hotelData = {};
+            let hotelName = dataFromExtractProcess[i].eq(index).find('.sr-hotel__name').text().trim();
+            let hotelRating = dataFromExtractProcess[i].eq(index).find('.bui-review-score__badge').text().trim();
+            let hotelDescription = dataFromExtractProcess[i].eq(index).find('.hotel_desc').text().trim();
+            let hotelLocation = dataFromExtractProcess[i].eq(index).find('.jq_tooltip').text().trim();
+            let hotelImage = dataFromExtractProcess[i].eq(index).find('.hotel_image').attr('src');
+            if (hotelName) {
+                hotelData = {
+                    'name': hotelName,
+                    'rating': hotelRating ? hotelRating: '-',
+                    'description': hotelDescription,
+                    'location': hotelLocation,
+                    'imageUrl': hotelImage
+                };
+                transformedData.push(hotelData);
+            }
+        });
+
+    }
     dataFromTransportProcess = transformedData;
     responseToClient.json(transformedData);
 }
@@ -150,7 +158,8 @@ function loadProcess(responseToClient) {
     });
     newDataFromLoadProcess = [];
     dataFromTransportProcess = [];
-    dataFromExtractProcess = '';
+    dataFromExtractProcess = [];
+    extractedDataString = '';
 }
 
 function exportToCSV(responseToClient) {
@@ -234,7 +243,6 @@ function etlProcess(responseToClient, subpages = 1) {
                 offset += 15;
                 etlProcess(responseToClient, parseInt(subpages - 1));
             }
-
         }
     });
 }
