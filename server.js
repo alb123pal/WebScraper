@@ -11,7 +11,7 @@ let data = require('./data');
 
 let dataFromExtractProcess = [], dataFromTransportProcess = [], newDataFromLoadProcess = [], offset = 15;
 let defaultUrl = '';
-let extractedData = [], extractedDataString = '';
+let extractedData = [], extractedDataString = '', newHotelFromETLProcess = [];
 const ws = fs.createWriteStream('data.csv');
 
 app.get('/api/etl-process', (req, res) => {
@@ -233,6 +233,7 @@ function etlProcess(responseToClient, subpages = 1) {
                         imageUrl: hotels[i].imageUrl
                     };
                     let preparedJSON = prepareJSONtoSave(newData);
+                    newHotelFromETLProcess.push(newData);
                     data.push(preparedJSON);
                 }
             }
@@ -255,7 +256,8 @@ function sendDataToClient(responseToClient) {
 
         console.log("The file was saved!");
     });
-    responseToClient.json(data);
+    responseToClient.json({'allHotels': data, 'newHotels': newHotelFromETLProcess});
+    newHotelFromETLProcess = [];
 }
 
 function clearDatabase(responseToClient) {
