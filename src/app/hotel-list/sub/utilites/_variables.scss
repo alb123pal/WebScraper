@@ -1,0 +1,28 @@
+/** COLORS **/
+$white: #fff;
+$black: #000;
+$body-bg: #fff;
+
+$text-color: #080708;
+$green: #78B802;
+$yellow: #F3DE2C;
+$blue: #3772FF;
+$red: #DF2935;
+$orange: #FF715B;
+$purple: #7B1E7A;
+$light-gray: #b0b0b0;
+
+/** DECORATIONS **/
+$transition-base: all .25s ease-in-out;
+
+/** FONTS **/
+$font-text: 'Source Sans Pro', sans-serif;
+$font-header: 'Montserrat', sans-serif;
+
+$breakpoints: (
+  xs: 576px,
+  sm: 768px,
+  md: 992px,
+  lg: 1200px,
+  xl: 1440px,
+);

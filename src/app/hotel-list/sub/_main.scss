@@ -1,0 +1,233 @@
+.hotel {
+	padding-bottom: 20px;
+	border-bottom: 1px solid $light-gray;
+  &__info {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+	}
+	&__location {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: start;
+		align-items: center;
+		& svg {
+			width: 15px;
+			height: 15px;
+			fill: $text-color;
+			margin-right: 10px;
+		}
+	}
+	&__rating {
+		padding: 10px 15px;
+		color: $white;
+		font-weight: 600;
+		font-size: 20px;
+		background-color: $green;
+	}
+	&__opinion-numbers {
+		font-size: 16px;
+		font-weight: 400;
+		margin-right: 10px;
+
+	}
+}
+
+.input{
+	padding: 15px 10px;
+	width: 100%;
+	max-width: 400px;
+	display: block;
+	border: 1px solid $text-color;
+	font-size: 14px;
+	color: $text-color;
+}
+
+
+.btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+  white-space: nowrap;
+  user-select: none;
+  text-align: center;
+  font-size: 16px;
+  color: $white;
+  font-family: $font-header;
+  text-transform: uppercase;
+  box-sizing: border-box;
+  -webkit-appearance: none;
+  cursor: pointer;
+  vertical-align: middle;
+  transition: $transition-base;
+  font-weight: 600;
+	padding: 15px 30px;
+	width: 100%;
+	max-width: 280px;
+	margin: 20px 10px;
+	& svg {
+		width: 30px;
+		height: 30px;
+		margin-left: 20px;
+		transition: $transition-base;
+		& path {
+			fill: $white;
+		}
+	}
+	&--green {
+		background-color: $green;
+		border: 1px solid $green;
+		&:hover {
+			background-color: $white;
+			color: $green;
+			transition: $transition-base;
+			& svg {
+				& path {
+					fill: $green;
+					transition: $transition-base;
+				}
+			}
+		}
+	}
+	&--green-small {
+		margin: 20px 0;
+		font-size: 14px;
+		padding: 5px 10px;
+	}
+	&--yellow {
+		background-color: $yellow;
+		border: 1px solid $yellow;
+		&:hover {
+			background-color: $white;
+			color: $yellow;
+			transition: $transition-base;
+			& svg {
+				& path {
+					fill: $yellow;
+					transition: $transition-base;
+				}
+			}
+		}
+	}
+	&--blue {
+		background-color: $blue;
+		border: 1px solid $blue;
+		&:hover {
+			background-color: $white;
+			color: $blue;
+			transition: $transition-base;
+			& svg {
+				& path {
+					fill: $blue;
+					transition: $transition-base;
+				}
+			}
+		}
+	}
+	&--red {
+		background-color: $red;
+		border: 1px solid $red;
+		&:hover {
+			background-color: $white;
+			color: $red;
+			transition: $transition-base;
+			& svg {
+				& path {
+					fill: $red;
+					transition: $transition-base;
+				}
+			}
+		}
+	}
+	&--purple {
+		background-color: $purple;
+		border: 1px solid $purple;
+		&:hover {
+			background-color: $white;
+			color: $purple;
+			transition: $transition-base;
+			& svg {
+				& path {
+					fill: $purple;
+					transition: $transition-base;
+				}
+			}
+		}
+	}
+	&--orange {
+		background-color: $orange;
+		border: 1px solid $orange;
+		&:hover {
+			background-color: $white;
+			color: $orange;
+			transition: $transition-base;
+			& svg {
+				& path {
+					fill: $orange;
+					transition: $transition-base;
+				}
+			}
+		}
+	}
+}
+
+.loader-center {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.elements {
+	font-size: 18px;
+	font-weight: 600;
+	&__number {
+		color: $green;
+		font-weight: 700;
+	}
+}
+
+.page-loader {
+	width: 150px;
+	height: 150px;
+	circle {
+	  fill: none;
+	  stroke-width: 5;
+	  stroke-linecap: round;
+	  animation-name: loader;
+	  animation-duration: 4s;
+	  animation-iteration-count: infinite;
+	  animation-timing-function: ease-in-out;
+	  transform-origin: center center;
+  
+	  &:nth-child(1) {
+		stroke: $yellow;
+		stroke-dasharray: 50;
+		animation-delay: -0.2s;
+	  }
+	  &:nth-child(2) {
+		stroke: $red;
+		stroke-dasharray: 100;
+		animation-delay: -0.4s;
+	  }
+	  &:nth-child(3) {
+		stroke: $green;
+		stroke-dasharray: 180;
+		animation-delay: -0.6s;
+	  }
+	  &:nth-child(4) {
+		stroke: $blue;
+		stroke-dasharray: 350;
+		stroke-dashoffset: -100;
+		animation-delay: -0.8s;
+	  }
+	  @keyframes loader {
+		50% {
+		  transform: rotate(360deg);
+		}
+	  }
+	}
+  }
+  

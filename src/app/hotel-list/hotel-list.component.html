@@ -1,81 +1,198 @@
-<section class="wrapper-content">
-  <h1>ETL Process</h1>
-  <p>Data comes from booking</p>
-</section>
-<section class="wrapper-subpages">
-  <span class="wrapper-subpages-label">Type integer from how many subpages download data</span>
-  <input class="input-subpages" placeholder="type number" (input)="setNumberSubpages($event)"/>
-  <hr />
-</section>
-<section class="wrapper-buttons">
-  <div>
-  <button class="button button-etl" (click)="etlProcess()">ETL</button>
-  </div>
-  <div class="panel-etl">
-    <button class="button" (click)="extractData()">E</button>
-    <button class="button" (click)="transformData()" [disabled]="!isExtractProcessInvoked">T</button>
-    <button class="button" (click)="loadData()" [disabled]="!isExtractProcessInvoked || !isTransformProcessInvoked">L</button>
-  </div>
-  <div class="panel-buttons-database">
-    <button class="button" (click)="exportToCsv()">Export to csv </button>
-    <button class="button" (click)="clearDatabase()">Clear database </button>
-  </div>
-  <span class="database-info">Amount of elements in Database: <span class="database-info-length">{{hotels.length}}</span></span>
-</section>
-<section class="filters-panel">
-    <div class="filters-panel-options">
-      <button class="button" (click)="showHideFilterOptions()">Filter options</button>
+<!--<section class="wrapper-content">-->
+  <!--<h1>ETL Process</h1>-->
+  <!--<p>Data comes from booking</p>-->
+<!--</section>-->
+<!--<section class="wrapper-subpages">-->
+  <!--<span class="wrapper-subpages-label">Type integer from how many subpages download data</span>-->
+  <!--<input class="input-subpages" placeholder="type number" (input)="setNumberSubpages($event)"/>-->
+  <!--<hr />-->
+<!--</section>-->
+<!--<section class="wrapper-buttons">-->
+  <!--<div>-->
+  <!--<button class="button button-etl" (click)="etlProcess()">ETL</button>-->
+  <!--</div>-->
+  <!--<div class="panel-etl">-z->
+    <!--<button class="button" (click)="extractData()">E</button>-->
+    <!--<button class="button" (click)="transformData()" [disabled]="!isExtractProcessInvoked">T</button>-->
+    <!--<button class="button" (click)="loadData()" [disabled]="!isExtractProcessInvoked || !isTransformProcessInvoked">L</button>-->
+  <!--</div>-->
+  <!--<div class="panel-buttons-database">-->
+    <!--<button class="button" (click)="exportToCsv()">Export to csv </button>-->
+    <!--<button class="button" (click)="clearDatabase()">Clear database </button>-->
+  <!--</div>-->
+  <!--<span class="database-info">Amount of elements in Database: <span class="database-info-length">{{hotels.length}}</span></span>-->
+<!--</section>-->
+<!--<section class="filters-panel">-->
+    <!--<div class="filters-panel-options">-->
+      <!--<button class="button" (click)="showHideFilterOptions()">Filter options</button>-->
+    <!--</div>-->
+<!--</section>-->
+<!--<section class="filters-panel-advanced" [class.filters-panel-advanced&#45;&#45;display]="isHiddenFilterOptions">-->
+  <!--<div class="filters-panel-advanced-options">-->
+    <!--<div class="filters-section-upper-left">-->
+      <!--<div>-->
+        <!--<input class="input" type="text" name="filter" placeholder="Search product"  [(ngModel)]="searchHotel">-->
+        <!--<img class="icon-search" src='../assets/search.png'>-->
+      <!--</div>-->
+    <!--</div>-->
+    <!--<div class="filters-section-upper-right">-->
+      <!--<div class="modal-edit-dropdown">-->
+        <!--<div class="filters-section-bottom-right">-->
+          <!--<button class="button" (click)="showHideFilterOptions()">Filter by rating</button>-->
+        <!--</div>-->
+      <!--</div>-->
+    <!--</div>-->
+  <!--</div>-->
+<!--</section>-->
+<!--<section class="wrapper-data">-->
+  <!--<table class="responstable">-->
+    <!--<tr>-->
+      <!--<th class="id">Number</th>-->
+      <!--<th class="name">Name</th>-->
+      <!--<th class="rating">Rating</th>-->
+      <!--<th class="location">Location</th>-->
+      <!--<th class="description">Description</th>-->
+    <!--</tr>-->
 
+    <!--<tr *ngFor="let hotel of hotels | hotelFilter: searchHotel;  let i = index ">-->
+      <!--<td>{{i+1}}</td>-->
+      <!--<td>{{hotel.name}}</td>-->
+      <!--<td>{{hotel.rating}}</td>-->
+      <!--<td>{{hotel.location}}</td>-->
+      <!--<td>{{hotel.description}}</td>-->
+    <!--</tr>-->
+  <!--</table>-->
+<!--</section>-->
+<!--<section>-->
+  <!--<div class="wrapper-info" *ngIf="!requestInfo">-->
+    <!--<span>{{requestInfo}}</span>-->
+  <!--</div>-->
+<!--</section>-->
+<!--<section *ngIf="isLoading" class="request-loader">-->
+  <!--<div class="lds-ring"><div></div><div></div><div></div><div></div></div>-->
+<!--</section>-->
+<!--<div>-->
+  <!--<br />  Wyswietlic komunikat, ze request/y zostały zakonczone pomyslnie - zacząlem to robic-->
+  <!--<br />  Dokonczyc filtrowanie hotelu jak jest ratng-->
+  <!--<br />  Mozna dodac input ktory bedzie przyjmowal link z booking i stamtad pobierał dane-->
+  <!--<br />  Przycisk ekspotu hotelu do txt-->
+<!--</div>-->
+
+<div class="container mtb-4">
+  <div *ngIf="isDisplayNotification" class="notification-wrapper">
+    <div class="notification-info" [ngClass]="[isError ? 'notification-info-error' : 'notification-info-success' ]">
+      <span>{{captionInfo}}</span>
     </div>
-</section>
-<section class="filters-panel-advanced" [class.filters-panel-advanced--display]="isHiddenFilterOptions">
-  <div class="filters-panel-advanced-options">
-    <div class="filters-section-upper-left">
-      <div>
-        <input class="input" type="text" name="filter" placeholder="Search product"  [(ngModel)]="searchHotel">
-        <img class="icon-search" src='../assets/search.png'>
+  </div>
+  <h1 class="text-center uppercase"> ETL Process from booking.com </h1>
+
+  <div class="mtb-2 d-flex flex-column justify-content-center align-items-center">
+    <p class="uppercase"> Type integer from how many subpages download data </p>
+    <input class="input" type="number" placeholder="Default 1" (input)="setNumberSubpages($event)"/>
+  </div>
+
+  <div class="mtb-2 d-flex flex-column justify-content-center align-items-center">
+    <p class="uppercase"> Search hotel's by name </p>
+    <input class="input" placeholder="Search hotel"  name="filter" [(ngModel)]="searchHotel"/>
+  </div>
+  <div class="d-flex flex-wrap flex-row justify-content-center align-items-center">
+    <button class="btn btn--yellow" (click)="extractData()">E
+      <svg enable-background="new 165 15.4 140 109.2" version="1.1" viewBox="165 15.4 140 109.2" xml:space="preserve" xmlns="http://www.w3.org/2000/svg">
+      <path d="m270 110.6h-91v-63h18.2s4.8-6.3 15.2-14h-40.4c-3.9 0-7 3.1-7 7v77c0 3.9 3.1 7 7 7h105c3.9 0 7-3.1 7-7v-26.2l-14 11.5v7.7zm-11.5-48.7v24.8l46.5-36.3-46.5-35v21.9c-56.4 0-56.4 55.8-56.4 55.8 16-26.2 25.8-31.2 56.4-31.2z"/>
+    </svg>
+    </button>
+    <button class="btn btn--blue" (click)="transformData()" [disabled]="!isExtractProcessInvoked">T
+      <svg enable-background="new 1.9 0 84.1 87.9" version="1.1" viewBox="1.9 0 84.1 87.9" xml:space="preserve" xmlns="http://www.w3.org/2000/svg">
+      <path d="m2.1 41.9l24-40.9c0.4-0.6 1.2-1 2-1s1.5 0.4 1.9 1.1l16.3 27.8-2.3 1.1-12.9-22.8c-0.5-0.8-1.4-1.2-2.3-1.1s-1.7 0.8-1.9 1.7l-8.9 36.1c-0.2 0.6-0.1 1.2 0.2 1.8 0.3 0.5 0.8 0.9 1.4 1.1 2.9 0.7 5.8 1 8.8 1h0.9v2.9h-1.9c-8.6 0-16.9-2-24.5-6-0.5-0.3-0.9-0.7-1-1.3-0.1-0.5 0-1 0.2-1.5zm31-0.4c0-0.4 0.2-0.8 0.6-1l25.2-13.1c0.3-0.1 0.6-0.2 0.9 0l25.5 12.3h0.1 0.1l0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1v0.1 0.2 0.1 32.6c0 0.4-0.2 0.8-0.6 1l-24.7 13.6c-0.2 0.1-0.3 0.1-0.5 0.1s-0.4-0.1-0.6-0.2c-0.1-0.1-0.2-0.1-0.3-0.2-0.2 0-0.4 0-0.5-0.1l-25-13.1c-0.4-0.2-0.6-0.6-0.6-1l-0.1-31.4v-0.4zm28.2 43.4l22.5-12.2v-30.1l-22.5 12.6v29.7zm-1.1-31.6l22.2-12.4-22.9-11.3-22.8 12 23.5 11.7zm-12.6-41.3c0 0.4 0.2 0.8 0.4 1.1l3.7 3.7c0.6 0.6 1.6 0.6 2.1 0 0.3-0.3 0.4-0.7 0.4-1.1s-0.2-0.8-0.4-1.1l-1.4-1.4c0.9-0.1 1.8-0.2 2.7-0.2 13.5 0 19.4 12.8 19.5 12.9 0.2 0.5 0.8 0.9 1.4 0.9 0.2 0 0.4 0 0.6-0.1 0.8-0.3 1.1-1.2 0.8-2-0.1-0.1-6.8-14.7-22.2-14.7-0.7 0-1.4 0-2 0.1l0.8-0.8c0.3-0.3 0.4-0.7 0.4-1.1s-0.2-0.8-0.4-1.1c-0.6-0.6-1.6-0.6-2.1 0l-3.9 3.9c-0.2 0.2-0.4 0.6-0.4 1z"/>
+    </svg>
+    </button>
+    <button class="btn btn--purple" (click)="loadData()" [disabled]="!isExtractProcessInvoked || !isTransformProcessInvoked">L
+      <svg enable-background="new 1 0 498.7 511" version="1.1" viewBox="1 0 498.7 511" xml:space="preserve" xmlns="http://www.w3.org/2000/svg">
+    <path d="m483 3.4h-131.5c-9.2 0-16.7 7.5-16.7 16.7v221.6c0 9.2 7.5 16.7 16.7 16.7h131.5c9.2 0 16.7-7.5 16.7-16.7v-221.6c0-9.2-7.5-16.7-16.7-16.7zm-30.1 215.1h-71.3c-8.3 0-15-6.7-15-15s6.7-15 15-15h71.3c8.3 0 15 6.7 15 15s-6.7 15-15 15zm0-72.6h-71.3c-8.3 0-15-6.7-15-15s6.7-15 15-15h71.3c8.3 0 15 6.7 15 15s-6.7 15-15 15zm0-72.7h-71.3c-8.3 0-15-6.7-15-15s6.7-15 15-15h71.3c8.3 0 15 6.7 15 15s-6.7 15-15 15z"/>
+    <path d="m149.1 254.4h-131.4c-9.3 0-16.7 7.4-16.7 16.6v221.6c0 9.2 7.5 16.7 16.7 16.7h131.5c9.2 0 16.7-7.5 16.7-16.7v-221.6c-0.1-9.2-7.6-16.6-16.8-16.6zm-30.1 215.1h-71.3c-8.3 0-15-6.7-15-15s6.7-15 15-15h71.3c8.3 0 15 6.7 15 15s-6.7 15-15 15zm0-72.6h-71.3c-8.3 0-15-6.7-15-15s6.7-15 15-15h71.3c8.3 0 15 6.7 15 15 0 8.2-6.7 15-15 15zm0-72.7h-71.3c-8.3 0-15-6.7-15-15s6.7-15 15-15h71.3c8.3 0 15 6.7 15 15s-6.7 15-15 15z"/>
+    <path d="m81.5 211.7c1.3 0.3 2.5 0.5 3.8 0.5 6.7 0 12.7-4.5 14.5-11.2 9.6-36.7 31.3-70 61.1-93.9 20.8-16.6 44.4-28 69.7-34l-8.3 8.3c-5.8 5.8-5.8 15.3 0 21.2 2.9 2.9 6.8 4.4 10.6 4.4s7.7-1.5 10.6-4.4l38.6-38.6c5.8-5.9 5.8-15.3 0-21.2l-38.6-38.4c-5.8-5.8-15.3-5.8-21.2 0-5.8 5.9-5.8 15.3 0 21.2l15.7 15.6c-34.9 5.6-67.6 20.1-95.8 42.5-34.9 27.8-60.2 66.8-71.4 109.7-2.1 8.1 2.7 16.3 10.7 18.3z"/>
+    <path d="m422.7 291.7c-8.1-1.8-16.1 3.3-17.8 11.4-8.4 38.4-29.8 73.4-60.2 98.6-21.4 17.7-45.9 29.9-72.3 36l8.3-8.3c5.9-5.9 5.9-15.3 0-21.2-5.8-5.8-15.3-5.8-21.2 0l-38.6 38.6c-5.9 5.8-5.9 15.3 0 21.2l38.6 38.6c2.9 2.9 6.8 4.4 10.6 4.4s7.7-1.5 10.6-4.4c5.9-5.9 5.9-15.3 0-21.2l-15.7-15.7c36.1-5.9 70.4-21.4 98.8-44.9 35.6-29.5 60.6-70.4 70.4-115.3 1.7-8-3.4-16-11.5-17.8z"/>
+    </svg>
+    </button>
+  </div>
+
+  <div class="d-flex flex-wrap flex-row justify-content-center align-items-center">
+    <button class="btn btn--green" (click)="etlProcess()">ETL
+      <svg enable-background="new 0 0 512 512" version="1.1" viewBox="0 0 512 512" xml:space="preserve" xmlns="http://www.w3.org/2000/svg">
+            <path d="m121 407c8.3 0 15-6.7 15-15s-6.7-15-15-15-15 6.7-15 15 6.7 15 15 15z"/>
+            <path d="m22.5 432.4c0.3 3.6-5.1 25.7 13.7 44.5 15 15 29.7 13.8 44.5 12.7l5 5.9c8.7 10.5 21.6 16.5 35.3 16.5 26.1 0 37.4-19.9 40.4-22.5 13.6 1.1 29.4 2.4 44.5-12.7 17.5-17.6 12.4-41 12.7-44.5l6-5c10.4-8.7 16.4-21.6 16.4-35.3 0-27-19.9-37.4-22.5-40.4-0.3-3.6 6.1-25.7-12.7-44.5-18.8-18.7-40.9-12.3-44.5-12.7-3-2.4-12.7-21.3-40.3-21.3-27.7 0-37.3 18.9-40.4 21.3-3.9 0.4-25.6-6.2-44.5 12.7-17.5 17.6-13.4 41-13.7 44.5l-6 5c-10.4 8.8-16.4 21.7-16.4 35.4 0 27 19.9 37.4 22.5 40.4zm98.5-85.4c24.8 0 45 20.2 45 45s-20.2 45-45 45-45-20.2-45-45 20.2-45 45-45z"/>
+            <path d="m239.1 302h217.2l-65.3-80.3v-131.7h-150v131.7l-38.2 47.8c8.9 3.7 17.1 9.2 24.3 16.4 4.9 4.9 8.7 10.4 12 16.1z"/>
+            <path d="M241,60h150V30h30V0H211v30h30V60z"/>
+            <path d="m249.2 338.7c10 10.1 21.8 27.1 21.8 53.3 0 20.2-8 39.4-22 53.6-0.3 10.1-2.6 23.3-9.9 36.4h190.4c45 0 82.6-36.6 82.6-81.6 0-18.5-6.4-36.6-17.9-51l-14-17.4h-231.7c0.2 2.2 0.7 4.4 0.7 6.7zm141.8 23.3h30v30h-30v-30zm-90 30h30v30h-30v-30z"/>
+          </svg>
+    </button>
+    <button class="btn btn--orange" (click)="exportToCsv()">Export to csv
+      <svg enable-background="new 0 0 398 444" version="1.1" viewBox="0 0 398 444" xml:space="preserve" xmlns="http://www.w3.org/2000/svg">
+          <path d="M320,376c0,4.4-3.6,8-8,8h-22l54,60l54-60h-22c-4.4,0-8-3.6-8-8V240h-48V376z"/>
+          <path d="m88 72v-61.7l-75.5 69.7h67.5c4.4 0 8-3.6 8-8z"/>
+          <path d="m344 0h-240v72c0 13.3-10.7 24-24 24h-80v296c0 4.4 3.6 8 8 8h274.8l-16.8-18.6c-2.1-2.4-2.6-5.7-1.4-8.6 1.3-2.9 4.2-4.7 7.3-4.7h32v-136.1c0-4.4 3.6-8 8-8h40v-216c0.1-4.4-3.5-8-7.9-8zm-288 144h32c4.4 0 8 3.6 8 8s-3.6 8-8 8h-32c-4.4 0-8-3.6-8-8s3.6-8 8-8zm224 208h-224c-4.4 0-8-3.6-8-8s3.6-8 8-8h224c4.4 0 8 3.6 8 8s-3.6 8-8 8zm0-48h-224c-4.4 0-8-3.6-8-8s3.6-8 8-8h224c4.4 0 8 3.6 8 8s-3.6 8-8 8zm0-48h-224c-4.4 0-8-3.6-8-8s3.6-8 8-8h224c4.4 0 8 3.6 8 8s-3.6 8-8 8zm16-48h-240c-4.4 0-8-3.6-8-8s3.6-8 8-8h240c4.4 0 8 3.6 8 8s-3.6 8-8 8zm0-48h-176c-4.4 0-8-3.6-8-8s3.6-8 8-8h176c4.4 0 8 3.6 8 8s-3.6 8-8 8z"/>
+        </svg>
+    </button>
+    <button class="btn btn--red" (click)="clearDatabase()">Clear database
+      <svg enable-background="new 0 0 496 496" version="1.1" viewBox="0 0 496 496" xml:space="preserve" xmlns="http://www.w3.org/2000/svg">
+          <path d="M488,0H8C3.6,0,0,3.6,0,8v120c0,4.4,3.6,8,8,8h17.4l70.7,353.6c0.8,3.7,4,6.4,7.8,6.4h288c3.8,0,7.1-2.7,7.8-6.4L470.6,136  H488c4.4,0,8-3.6,8-8V8C496,3.6,492.4,0,488,0z M385.4,480H110.6L41.8,136h412.5L385.4,480z M480,120H16V16h464V120z"/>
+          <path d="m138.2 360.6c0 2.1 0.8 4.2 2.3 5.7l45.3 45.3c3.1 3.1 8.2 3.1 11.3 0l50.9-50.9 50.9 50.9c3.1 3.1 8.2 3.1 11.3 0l45.3-45.3c3.1-3.1 3.1-8.2 0-11.3l-50.9-51 50.9-50.9c3.1-3.1 3.1-8.2 0-11.3l-45.3-45.3c-3.1-3.1-8.2-3.1-11.3 0l-50.9 50.9-50.9-50.9c-3.1-3.1-8.2-3.1-11.3 0l-45.3 45.3c-3.1 3.1-3.1 8.2 0 11.3l50.9 50.9-50.9 50.9c-1.5 1.5-2.3 3.5-2.3 5.7zm70.2-50.9c3.1-3.1 3.1-8.2 0-11.3l-50.9-50.9 33.9-33.9 50.9 50.9c3.1 3.1 8.2 3.1 11.3 0l50.9-50.9 33.9 33.9-50.9 50.9c-3.1 3.1-3.1 8.2 0 11.3l50.9 50.9-33.9 33.9-50.9-50.9c-3.1-3.1-8.2-3.1-11.3 0l-50.9 50.9-33.9-33.9 50.9-50.9z"/>
+        </svg>
+    </button>
+  </div>
+  <div class="mtb-2">
+    <p class="elements"> Number of elements in Database: <span class="elements__number">{{hotels.length}}</span></p>
+
+  </div>
+  <div class="hotel mtb-4" *ngFor="let hotel of hotels | hotelFilter: searchHotel; let i = index">
+    <div class="row">
+      <div class="col-md-3">
+        <img [src]="hotel.imageUrl" alt="hotel">
       </div>
-    </div>
-    <div class="filters-section-upper-right">
-      <div class="modal-edit-dropdown">
-        <div class="filters-section-bottom-right">
-          <button class="button" (click)="showHideFilterOptions()">Filter by rating</button>
+      <div class="col-md-7">
+        <div class="hotel__info">
+          <h2>{{hotel.name}}</h2>
+          <div class="hotel__location">
+            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+            viewBox="66.9 0 296.3 430.1" enable-background="new 66.9 0 296.3 430.1" xml:space="preserve">
+              <g>
+                <path id="Facebook_Places" d="M356.2,107.1c-1.5-5.7-4.6-11.9-6.9-17.2C321.7,23.7,261.6,0,213.1,0c-65,0-136.6,43.6-146.1,133.4
+                v18.4c0,0.8,0.3,7.6,0.6,11.1c5.4,42.8,39.1,88.3,64.4,131.1c27.1,45.9,55.3,91,83.2,136.1c17.2-29.4,34.4-59.3,51.2-87.9
+                c4.6-8.4,9.9-16.8,14.5-24.9c3.1-5.3,8.9-10.7,11.6-15.7c27.1-49.7,70.8-99.8,70.8-149.1v-20.3
+                C363.2,126.9,356.6,108.2,356.2,107.1z M214.2,199.2c-19.1,0-40-9.6-50.3-35.9c-1.5-4.2-1.4-12.6-1.4-13.4V138
+                c0-33.6,28.6-48.9,53.4-48.9c30.6,0,54.2,24.5,54.2,55.1C270.1,174.7,244.8,199.2,214.2,199.2z"/>
+              </g>
+            </svg>
+            <p>{{hotel.location}}</p>
+          </div>
+          <p class="hotel__desc text-justify">
+            {{hotel.description}}
+          </p>
+          <div class="text-right">
+            <button class="btn btn--green btn--green-small" (click)="exportToText(i)">Export to txt
+              <svg enable-background="new 0 0 398 444" version="1.1" viewBox="0 0 398 444" xml:space="preserve" xmlns="http://www.w3.org/2000/svg">
+                <path d="M320,376c0,4.4-3.6,8-8,8h-22l54,60l54-60h-22c-4.4,0-8-3.6-8-8V240h-48V376z"/>
+                <path d="m88 72v-61.7l-75.5 69.7h67.5c4.4 0 8-3.6 8-8z"/>
+                <path d="m344 0h-240v72c0 13.3-10.7 24-24 24h-80v296c0 4.4 3.6 8 8 8h274.8l-16.8-18.6c-2.1-2.4-2.6-5.7-1.4-8.6 1.3-2.9 4.2-4.7 7.3-4.7h32v-136.1c0-4.4 3.6-8 8-8h40v-216c0.1-4.4-3.5-8-7.9-8zm-288 144h32c4.4 0 8 3.6 8 8s-3.6 8-8 8h-32c-4.4 0-8-3.6-8-8s3.6-8 8-8zm224 208h-224c-4.4 0-8-3.6-8-8s3.6-8 8-8h224c4.4 0 8 3.6 8 8s-3.6 8-8 8zm0-48h-224c-4.4 0-8-3.6-8-8s3.6-8 8-8h224c4.4 0 8 3.6 8 8s-3.6 8-8 8zm0-48h-224c-4.4 0-8-3.6-8-8s3.6-8 8-8h224c4.4 0 8 3.6 8 8s-3.6 8-8 8zm16-48h-240c-4.4 0-8-3.6-8-8s3.6-8 8-8h240c4.4 0 8 3.6 8 8s-3.6 8-8 8zm0-48h-176c-4.4 0-8-3.6-8-8s3.6-8 8-8h176c4.4 0 8 3.6 8 8s-3.6 8-8 8z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="d-flex flex-row flex-wrap">
+          <span class="hotel__rating">{{hotel.rating}}</span>
         </div>
       </div>
     </div>
-
   </div>
-</section>
-<section class="wrapper-data">
-  <table class="responstable">
-    <tr>
-      <th class="id">Number</th>
-      <th class="name">Name</th>
-      <th class="rating">Rating</th>
-      <th class="location">Location</th>
-      <th class="description">Description</th>
-    </tr>
+</div>
 
-    <tr *ngFor="let hotel of hotels | hotelFilter: searchHotel;  let i = index ">
-      <td>{{i+1}}</td>
-      <td>{{hotel.name}}</td>
-      <td>{{hotel.rating}}</td>
-      <td>{{hotel.location}}</td>
-      <td>{{hotel.description}}</td>
-    </tr>
-  </table>
-</section>
-<section>
-  <div class="wrapper-info" *ngIf="!requestInfo">
-    <span>{{requestInfo}}</span>
-  </div>
-</section>
-<section *ngIf="isLoading" class="request-loader">
-  <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
-</section>
-<div>
-  <br />  Wyswietlic komunikat, ze request/y zostały zakonczone pomyslnie - zacząlem to robic
-  <br />  Dokonczyc filtrowanie hotelu jak jest ratng
-  <br />  Mozna dodac input ktory bedzie przyjmowal link z booking i stamtad pobierał dane
-  <br />  Przycisk ekspotu hotelu do txt
+<div class="loader-center" *ngIf="isLoading">
+  <svg class="page-loader">
+    <circle cx="75" cy="75" r="20"></circle>
+    <circle cx="75" cy="75" r="35"></circle>
+    <circle cx="75" cy="75" r="50"></circle>
+    <circle cx="75" cy="75" r="65"></circle>
+  </svg>
 </div>

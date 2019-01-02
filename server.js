@@ -53,7 +53,7 @@ app.get('/api/clear-database', (req, res) => {
 
 app.get('/api/export-hotel-to-text', (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
-    exportHotelToText(res, req.query.subpages);
+    exportHotelToText(res, req.query.idHotel);
 });
 
 app.get('*', (req, res) => {
@@ -93,7 +93,7 @@ function transformProcess(responseToClient) {
         if (hotelName) {
             hotelData = {
                 'name': hotelName,
-                'rating': hotelRating,
+                'rating': hotelRating ? hotelRating: '-',
                 'description': hotelDescription,
                 'location': hotelLocation,
                 'imageUrl': hotelImage
@@ -106,7 +106,7 @@ function transformProcess(responseToClient) {
 }
 
 function exportHotelToText(responseToClient, id) {
-    fs.writeFile("C:/Win10-pliki/Programowanie/ds-aktualne-prace/WebScraper/data.txt", JSON.stringify(data[1]), function (err) {
+    fs.writeFile("C:/Win10-pliki/Programowanie/ds-aktualne-prace/WebScraper/data.txt", JSON.stringify(data[id]), function (err) {
         if (err) {
             return console.log(err);
         }
@@ -116,7 +116,7 @@ function exportHotelToText(responseToClient, id) {
 }
 
 function loadProcess(responseToClient) {
-    let newHotelResponseForClient = [],
+    let newHotelsResponseForClient = [],
         found;
     for (let i = 0; i < dataFromTransportProcess.length; i++) {
         let newDataFromLoadProcessJSON = {};
@@ -131,17 +131,17 @@ function loadProcess(responseToClient) {
         if (found === false) {
             newDataFromLoadProcessJSON = {
                 name: dataFromTransportProcess[i].name,
-                rating: dataFromTransportProcess[i].rating,
+                rating: dataFromTransportProcess[i].rating  ? dataFromTransportProcess[i].rating : '-',
                 description: dataFromTransportProcess[i].description,
                 location: dataFromTransportProcess[i].location,
-                imageUrl: dataFromExtractProcess[i].imageUrl
+                imageUrl:  dataFromTransportProcess[i].imageUrl ? dataFromTransportProcess[i].imageUrl : 'assets/noimage.png'
             };
             let preparedJSON = prepareJSONtoSave(newDataFromLoadProcessJSON);
             data.push(preparedJSON);
-            newHotelResponseForClient.push(preparedJSON);
+            newHotelsResponseForClient.push(preparedJSON);
         }
     }
-    responseToClient.json({'newHotels': newHotelResponseForClient, 'allHotel': data});
+    responseToClient.json({'newHotels': newHotelsResponseForClient, 'allHotels': data});
     fs.writeFile("C:/Win10-pliki/Programowanie/ds-aktualne-prace/WebScraper/data.json", JSON.stringify(data), function (err) {
         if (err) {
             return console.log(err);
@@ -194,7 +194,7 @@ function etlProcess(responseToClient, subpages = 1) {
                 if (hotelName) {
                     hotelData = {
                         'name': hotelName,
-                        'rating': hotelRating,
+                        'rating': hotelRating ? hotelRating : '-',
                         'description': hotelDescription,
                         'location': hotelLocation,
                         'imageUrl': hotelImage
