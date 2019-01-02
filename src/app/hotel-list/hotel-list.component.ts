@@ -72,7 +72,7 @@ export class HotelListComponent implements OnInit {
         this.isLoading = true;
         this._hotelService.extractHotels(this.subpages).subscribe(
             (data) => {
-                this.displayNotification('Dane zostały pobrane pomyślnie');
+                this.displayNotification(`Dane zostały pobrane pomyślnie. Liczba znaków do przetworzenia: ${data.dataLength}`);
                 this.isExtractProcessInvoked = true;
                 this.isLoading = false;
                 console.log('Dane zostały pobrane, liczba znaków do przetworzenia: ', data.dataLength);
@@ -85,7 +85,7 @@ export class HotelListComponent implements OnInit {
         this._hotelService.transformHotels().subscribe(
             (data) => {
                 this.isLoading = false;
-                this.displayNotification('Dane zostały pommyślnie przetworzone');
+                this.displayNotification(`Dane zostały pommyślnie przetworzone. Liczba przetworzonych hoteli: ${data.length}`);
                 this.isTransformProcessInvoked = true;
                 console.log('Przetworzone dane: ', data);
             },
