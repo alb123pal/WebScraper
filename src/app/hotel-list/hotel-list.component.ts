@@ -20,8 +20,10 @@ export class HotelListComponent implements OnInit {
   isDisplayNotification = false;
   captionInfo = '';
   requestInfo = '';
+  hotelFilter: any;
   isHiddenFilterOptions = false;
   searchHotel: string;
+  orderFromTheHighestRating = false;
 
   ngOnInit() {
       this.getHotels();
@@ -136,5 +138,22 @@ export class HotelListComponent implements OnInit {
           this.isDisplayNotification = false;
           this.captionInfo = '';
       }, 3000);
+    }
+    searchHotel(event) {
+        this.hotelFilter = {};
+        if (event.target.value === '') {
+            this.hotelFilter = {};
+        }
+        this.hotelFilter = {
+            'searchHotel': event.target.value
+        };
+    }
+    orderByRating() {
+      this.orderFromTheHighestRating = !this.orderFromTheHighestRating;
+        this.hotelFilter = {};
+        this.hotelFilter = {
+            'orderHotelByRating': true,
+            'orderFromTheHighestRating': this.orderFromTheHighestRating
+        };
     }
 }

@@ -97,9 +97,10 @@ function transformProcess(responseToClient) {
             let hotelLocation = dataFromExtractProcess[i].eq(index).find('.jq_tooltip').text().trim();
             let hotelImage = dataFromExtractProcess[i].eq(index).find('.hotel_image').attr('src');
             if (hotelName) {
+                const floatValueRating = +(hotelRating.replace(/,/,'.'));
                 hotelData = {
                     'name': hotelName,
-                    'rating': hotelRating ? hotelRating: '-',
+                    'rating': hotelRating ? floatValueRating: '-',
                     'description': hotelDescription,
                     'location': hotelLocation,
                     'imageUrl': hotelImage
@@ -201,9 +202,10 @@ function etlProcess(responseToClient, subpages = 1) {
                 let hotelLocation = allHotels.eq(index).find('.jq_tooltip').text().trim();
                 let hotelImage = allHotels.eq(index).find('.hotel_image').attr('src');
                 if (hotelName) {
+                    const floatValueRating = +(hotelRating.replace(/,/,'.'));
                     hotelData = {
                         'name': hotelName,
-                        'rating': hotelRating ? hotelRating : '-',
+                        'rating': hotelRating ? floatValueRating : '-',
                         'description': hotelDescription,
                         'location': hotelLocation,
                         'imageUrl': hotelImage

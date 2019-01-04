@@ -13,7 +13,7 @@
 
   <div class="mtb-2 d-flex flex-column justify-content-center align-items-center">
     <p class="uppercase"> Search hotel's by name </p>
-    <input class="input" placeholder="Search hotel"  name="filter" [(ngModel)]="searchHotel"/>
+    <input class="input" placeholder="Search hotel"  name="filter" (input)="searchHotel($event)"/>
   </div>
   <div class="d-flex flex-wrap flex-row justify-content-center align-items-center">
     <button class="btn btn--yellow" (click)="extractData()">E
@@ -61,10 +61,12 @@
     </button>
   </div>
   <div class="mtb-2">
-    <p class="elements"> Number of elements in Database: <span class="elements__number">{{hotels.length}}</span></p>
-
+      <div class="row">
+        <p class="elements"> Number of elements in Database: <span class="elements__number">{{hotels.length}}</span></p>
+        <span class="order-by-rating" (click)="orderByRating()">Order By Rating</span>
   </div>
-  <div class="hotel mtb-4" *ngFor="let hotel of hotels | hotelFilter: searchHotel; let i = index">
+  </div>
+  <div class="hotel mtb-4" *ngFor="let hotel of hotels | hotelFilter: hotelFilter; let i = index">
     <div class="row">
       <div class="col-md-3">
         <img [src]="hotel.imageUrl" alt="hotel">
