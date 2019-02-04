@@ -4,7 +4,7 @@
       <span>{{captionInfo}}</span>
     </div>
   </div>
-  <h1 class="text-center uppercase"> ETL Process from booking.com </h1>
+  <h1 class="text-center uppercase elo"> ETL Process from booking.com </h1>
 
   <div class="mtb-2 d-flex flex-column justify-content-center align-items-center">
     <p class="uppercase"> Type integer from how many subpages download data </p>
@@ -66,7 +66,8 @@
         <span class="order-by-rating" (click)="orderByRating()">Order By Rating</span>
   </div>
   </div>
-  <div class="hotel mtb-4" *ngFor="let hotel of hotels | hotelFilter: hotelFilter; let i = index">
+  <div class="hotel mtb-4" *ngFor="let hotel of hotels">
+    <!--| hotelFilter: hotelFilter; let i = index"-->
     <div class="row">
       <div class="col-md-3">
         <img [src]="hotel.imageUrl" alt="hotel">

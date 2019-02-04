@@ -1,12 +1,13 @@
 import {Component, Input, OnInit} from '@angular/core';
 import { HotelService } from '../services/hotel.service';
-import { HotelFilterPipe } from '../hotel-list/hotel-filter.pipe';
+// import { HotelFilterPipe } from '../hotel-list/hotel-filter.pipe';
 
 
 @Component({
   selector: 'app-hotel-list',
   templateUrl: './hotel-list.component.html',
-  styleUrls: ['./hotel-list.component.scss']
+  styleUrls: ['./hotel-list.component.scss'],
+
 })
 export class HotelListComponent implements OnInit {
 

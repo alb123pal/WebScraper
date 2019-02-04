@@ -1,6 +1,8 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
+    "allowJs": true,
+    "module": "commonjs",
     "outDir": "../out-tsc/spec",
     "types": [
       "jasmine",
@@ -14,5 +16,8 @@
   "include": [
     "**/*.spec.ts",
     "**/*.d.ts"
+  ],
+  "transformIgnorePatterns": [
+    "node_modules/(?!rxjs|@angular/core|service-layer)"
   ]
 }
